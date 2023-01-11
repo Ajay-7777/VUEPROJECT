@@ -1,70 +1,10 @@
 <template>
-  <div id ="app">
+  <div id = "app">
     <div class="container">
-        <div class="title-bar">Book 1 Excel</div>
-        <div class="menu-bar">
-            <div class="menufile menu-item ">file</div>
-            <div class="menu-home  menu-item selected">home</div>
-            <div class="menu-insert  menu-item">insert</div>
-            <div class="menu-layout  menu-item">layout</div>
-            <div class="menu-help  menu-item">help</div>
-        </div>
-        <div class="menu-icon-bar">
-           <div class="material-icons menu-icons icon-cut">content_cut</div>
-           <div class="material-icons menu-icons icon-copy">content_copy</div>
-           <div class="material-icons menu-icons icon-paste">content_paste</div>
-           <select class="selector font-family-selector ">
-            <option style="font-family: Noto Sans" value="Noto Sans">Noto Sans</option>
-            <option style="font-family:Arial" value="Arial">Arial</option>
-            <option style="font-family:Calibri" value="Calibri">Calibri</option>
-            <option style="font-family:Comic Sans MS" value="Comic Sans MS">Comic Sans MS</option>
-            <option style="font-family:Courier New" value="Courier New">Courier New</option> 
-            <option style="font-family: Impact" value="Impact">Impact</option>
-            <option style="font-family: Georgia" value="Georgia">Georgia</option>
-            <option style="font-family:Garamond" value="Garamond">Garamond</option>
-            <option style="font-family: Lang" value="Lato">Lato</option>
-            <option style="font-family:Open Sans" value="Open Sans">Open Sans</option>
-            <option style="font-family:Palatino" value="Palatino">Palatino</option>
-            <option style="font-family:Verdana" value="Verdana">Verdana</option>
-           </select>
-           <select  class="selector font-size-selector">
-            <option value="10px">10</option>
-            <option value="12px">12</option>
-            <option value="14px" selected>14</option>
-            <option value="16px">16</option>
-            <option value="18px">18</option>
-            <option value="20px">20</option>
-            <option value="22px">22</option>
-            <option value="24px">24</option>
-            <option value="26px">26</option>
-            <option value="28px">28</option>
-            <option value="30px">30</option>
-            <option value="32px">32</option>
-           </select>
-           <div class="material-icons menu-icon icon-bold style-icon">format_bold</div>
-           <div class="material-icons menu-icon icon-italic style-icon">format_italic</div>
-           <div class="material-icons menu-icon icon-underline style-icon">format_underline</div>
-           <div class="material-icons menu-icon icon-align-left selected align-icon " >format_align_left</div>
-           <div class="material-icons menu-icon  icon-align-center  align-icon">format_align_center</div>
-           <div class="material-icons menu-icon icon-align-right  align-icon" @click="myfunction()">format_align_right</div>         
-           <div class="menu-icon icon-color-fill">
-            <input  class="color-picker background-color-picker" type="color" value="#fffff" />
-            <div class="material-icons color-fill-icon " >format_color_fill</div>
-           </div>
-           <div class="menu-icon icon-color-text">
-            <input  class="color-picker text-color-picker"  type="color" value="black"/>
-            <div class="material-icons color-fill-text">format_color_text</div>
-           </div>
-           <span class="material-icons download" curser="pointer">
-            cloud_download
-            </span>
-            <span class="material-icons open">
-            cloud_upload
-             </span>
-           
-        </div>
+        <Home/>
+       <Iconbar/>
         <div class="formula-bar">
-            <div   class="formula-editor selected-cell" > 
+            <div   class="formula-editor selected-cell" >   
             
             </div>
             <div class="function-sign">
@@ -123,28 +63,25 @@
 
 
 <script>
+import Home from './components/Home'
+import Iconbar from './components/Iconbar'
+import axios from 'axios';
+
 const $ = require('jquery');
-// We declare it globally
+
 window.$ = $;
  
 
 
 export default {
   name: 'App',
-  
-  data() {
-    return {
-        message: 'hello' ,
-  }
-},
-  methods :{
-    methodA () {
-          window.$.extfunctionA()   // the extended function is defined in the jquery.kdzzz.js
-
-        }
-},
-mounted() {
-    let defaultProperties={
+  components:{
+    Home,
+    Iconbar
+  },
+  data(){
+    return{
+        Properties:{
     text:"",
     "font-weight":"",
     "font-style":"",
@@ -158,24 +95,53 @@ mounted() {
     "child" : [] ,
   
 }
+    }
+  },
+    methods:{
+     
+    },
+mounted() {
+   let defaultProperties=this.Properties;
 let cellData = {
     "Sheet1":[]
 }
-
-let selectedSheet= "Sheet1";
-
-for(let i=1;i<=100;i++){
+// this.celldataobj=cellData;
+let selectedSheet = "Sheet1"; 
+// console.log(defaultProperties);
+for(let i=0;i<=100;i++){
     cellData[selectedSheet][i] = {};
-    for(let j=1 ;j<=100;j++){
+    for(let j=0 ;j<= 100;j++){
         cellData[selectedSheet][i][j] = {...defaultProperties};
     }
 }
 
 
+$(".savedb").click(  function() {
+            // console.log(cellData)
+            // console.log("data",cellData)
+            axios.post("http://localhost:3080/data",cellData).then((response)=>{
+                console.log("response",response);
+            })
+            
+           
+});
+// console.log(cellData)
+$(".opendb").click( function() {
+            // let p = prompt("Please Enter  Sheet Name");
+            axios.get('http://localhost:3080/data').then((response)=>{
+                cellData[selectedSheet]=response.data[0].cellData["Sheet1"];
+                // console.log(response,cellData[selectedSheet],selectedSheet)
+                 loadSheet();
+            });
+            // celldata=response;
+           
+           
+});
+
 // console.log(selectedSheet)
 let Ascii =new Map()
 // let totalSheets = 1;
-let lastlyAddedSheet=1;
+let lastlyAddedSheet = 1;
 
 $(document).ready(function (){
 for(let i=1;i<=100;i++){
@@ -198,8 +164,6 @@ let column=$(`<div class="column-name colId-${i}" id="colCod-${ans}">${ans}</div
 $(".column-name-container").append($(column));
 let row=$(`<div class="row-name" id="rowId-${i}">${i}</div>`);
 $(".row-name-container").append($(row));
-
-
 }
 for(let  i = 1;i<=100; i++){
     let row = $(`<div class="cell-row"></div>`);
@@ -218,7 +182,7 @@ $(".align-icon").click(function() {
     $(this).addClass("selected");
 });
 $(".style-icon").click(function() {
-    //toggle class is  like agar selected class hain tohta do vrna lgA DO
+    //toggle class is  like agar selected class hain to hta do vrna lgA DO
   console.log("you have clicked style icon");
      $(this).toggleClass("selected");
  
@@ -227,14 +191,11 @@ $(".style-icon").click(function() {
 //onclick
 
 $(".input-cell").click(function(e){
-   
-    console.log("you have clicked on input cell")
+    // console.log("you have clicked on input cell")
     if(e.ctrlKey){
         //event ko pass kar diya this will have col and row id 
        let [rowId,colId] = getRowCol(this);
-       
        if(rowId > 1){
-       
        let topcellSelected =$(`#row-${rowId - 1}-col-${colId}`).hasClass("selected");
        if(topcellSelected){
        
@@ -292,7 +253,7 @@ let [rowId,colId]=getRowCol(this);
 let formula = document.querySelector(".formula-input");
 //FORMULABAR UPDATE ON CLICK
 formula.value="";
-if(cellData[selectedSheet][rowId][colId].formula){
+if(cellData[selectedSheet][rowId][colId][formula]!==undefined){
     formula.value=cellData[selectedSheet][rowId][colId].formula;
 }
 let colCode = $(`.colId-${colId}`).attr("id").split("-")[1];
@@ -302,10 +263,10 @@ $(".formula-editor.selected-cell").text(colCode+rowId);
    changeHeader(this);
 });
 function changeHeader(ele){ 
-    console.log("you are in changeheader ");
+    // console.log("you are in changeheader ");
     let[rowId,colId]=getRowCol(ele);
     let cellInfo=defaultProperties;
-    console.log(cellData[selectedSheet]);
+    // console.log(cellData[selectedSheet]);
     if(cellData[selectedSheet][rowId] && cellData[selectedSheet][rowId][colId]){
         cellInfo=cellData[selectedSheet][rowId][colId];
     }
@@ -321,7 +282,7 @@ function changeHeader(ele){
     $(".font-family-selector").css("font-family",cellInfo["font-family"]);
     $(".font-size-selector").val(cellInfo["font-size"]);
     // console.log(cellInfo["font-size"]);
-    console.log("you are anout to end  cheange heaader");
+    // console.log("you are anout to end  cheange heaader");
 }
 
 
@@ -334,7 +295,7 @@ $(".input-cell").dblclick(function(){
 })
 
 $(".input-cell").blur(function(){
-    console.log("blur event run ho gya");
+    // console.log("blur event run ho gya");
     $(".input-cell.selected").attr("contenteditable","false");
     // console.log($(this).text());
     let [rowId,colId]= getRowCol(this);
@@ -347,7 +308,7 @@ $(".input-cell").blur(function(){
     //remove parent child relation
     removechildToParent(cellData[selectedSheet][rowId][colId].formula);
     //remove formula 
-    cellData[selectedSheet][rowId][colId].formula = "";
+    cellData[selectedSheet][rowId][colId].formula = "";  
     //update child cells value
     updatechildtoParent(rowId,colId);
 })
@@ -369,7 +330,7 @@ function getRowCol(ele){
 }
 //updating value of bold
 function updateCell(property,value,defaultPossible){
-    console.log("you are in update cell ");
+    // console.log("you are in update cell ");
     $(".input-cell.selected").each( function(){
         $(this).css(property,value);
    
@@ -401,7 +362,7 @@ if(Object.keys(cellData[selectedSheet][rowId]).length == 0){
     
     })
     // console.log(cellData);
-    console.log("you are anout to end updatecell");
+    // console.log("you are anout to end updatecell");
 }
 $(".icon-bold").click(function(){
 if($(this).hasClass("selected")){
@@ -522,7 +483,7 @@ let createnewsheet = function(){
     // totalSheets+=1;
     lastlyAddedSheet+=1;
     selectedSheet = sheetName;
-    console.log(selectedSheet,"ko")
+    // console.log(selectedSheet,"ko")
     for(let i=1;i<=100;i++){
         cellData[selectedSheet][i] = {};
         for(let j=1 ;j<=100;j++){
@@ -609,7 +570,7 @@ delete cellData[Object.keys(cellData)[currSheetIndex]];
 }
    
     else{
-       alert("sorry ,there is only one sheet,it's not possible");
+       alert("Sorry ,there is only one sheet,it's not possible");
        }
    })
 }
@@ -657,52 +618,45 @@ $(".icon-copy").click(function(){
 })
 
 $(".icon-cut").click(function(){
-    if(selectedCells.length>0){
-        selectedCells=[];
-    }
-    console.log(cellData);
+    // console.log("beforecut",selectedCells,selectedCells.length)
+    // console.log("beforecut",selectedCells)
+    // selectedCells=[]
+    // console.log("beforecut",selectedCells)
+    // console.log(cellData);
     $(".input-cell.selected").each(function(){
+        console.log(this);
         selectedCells.push(getRowCol(this));
     })
     cut = true;
-    console.log(selectedCells);
+    console.log("after",selectedCells);
 });
 
 
 $(".icon-paste").click(function(){
     // console.log(cellData);
-if(selectedCells.length>0){
     emptySheet();
-// console.log(cellData,"hi");
-  let[rowId , colId] = getRowCol($(".input-cell.selected")[0]);
-//   console.log(rowId,colId)
-  let rowDistance = rowId - selectedCells[0][0];
-  let colDistance = colId - selectedCells[0][1];
-  console.log(rowDistance,colDistance);
-    for( let cell of selectedCells){
-    //    console.log(cell[0],cell[1],"cell")
+    let [rowId,colId] = getRowCol($(".input-cell.selected")[0]);
+    let rowDistance = rowId - selectedCells[0][0];
+    let colDistance = colId - selectedCells[0][1];
+    for(let cell of selectedCells) {
         let newRowId = cell[0] + rowDistance;
         let newColId = cell[1] + colDistance;
-        console.log(newRowId,newColId)
-        if(!cellData[selectedSheet][newRowId]){
-         cellData[selectedSheet][newRowId] = [];
+        if(!cellData[selectedSheet][newRowId]) {
+            cellData[selectedSheet][newRowId] = {};
         }
-        // console.log(selectedCells);
         cellData[selectedSheet][newRowId][newColId] = {...cellData[selectedSheet][cell[0]][cell[1]]};
-    if(cut){
-        delete cellData[selectedSheet][cell[0]][cell[1]];
-        if(Object.keys(cellData[selectedSheet][cell[0]]).length>0){
-        delete  cellData[selectedSheet][cell[0]];
+        if(cut) {
+            delete cellData[selectedSheet][cell[0]][cell[1]];
+            if(Object.keys(cellData[selectedSheet][cell[0]]).length == 0) {
+                delete cellData[selectedSheet][cell[0]];
+            }
         }
     }
-}
-if(cut){
-        cut=false;
-        selectedCells =[];
+    if(cut) {
+        cut = false;
+        selectedCells = [];
     }
-   loadSheet();
-
-}
+    loadSheet();
 })
 let graphComponentMatrix =[];
 let rows =  100;
@@ -733,7 +687,6 @@ function isGraphCyclic(graphComponentMatrix){
     for(let i= 0 ;i<= rows-1 ;i++){
         for( let j =0 ;j <= cols ;j++){
             if(visited[i][j] === false){
-          
        let response = dfsCycleDetection(graphComponentMatrix,i,j,visited,dfsvisited);
        if (response === true) return true; 
     }
@@ -746,6 +699,7 @@ function dfsCycleDetection(graphComponentMatrix,srcr,srcc,visited,dfsvisited){
 
 visited[srcr][srcc] = true;
 dfsvisited[srcr][srcc] = true; 
+
 for( let children = 0; children < graphComponentMatrix[srcr][srcc].length ; children++){
   
     let [nbrr,nbrc]=graphComponentMatrix[srcr][srcc][children];
@@ -955,15 +909,14 @@ downloadBtn.addEventListener("click" , ()=>{
 
 //open task(upload)
 openBtn.addEventListener("click", () =>{
-    let input =document.createElement("input");
+    let input = document.createElement("input");
     input.setAttribute("type","file");
     input.click();
-console.log(input)
+    //  console.log(input);
     input.addEventListener("change" ,()=>{
         let fr =new FileReader();
         let files = input.files;
         let fileObj = files[0];
-
         fr.readAsText(fileObj);
         fr.addEventListener("load", () =>{
             let readSheetData =JSON.parse(fr.result);
@@ -971,10 +924,15 @@ console.log(input)
             
            createnewsheet();
         
-           console.log(readSheetData[0][1],selectedSheet);
-            cellData[selectedSheet] = {...readSheetData[0][1]};
+           for(let i=1;i<=100;i++){
+                console.log(readSheetData[0][i],selectedSheet);
+                cellData[selectedSheet][i] = {...readSheetData[0][i]};
+            
+           }
+         
           
             graphComponentMatrix = readSheetData[1];
+            loadSheet();
             
 });
 
@@ -1042,21 +1000,7 @@ body{
     position: relative;
 }
 
-.title-bar{
-    height: 5vh;
-   background-color:#107c41;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-  color: white;
-}
-.menu-bar{
-    height: 5vh;
-   background-color: #107c41;
 
-   display: flex;
-
-}
 .menu-item{
     padding-left:10px;
     padding-right: 10px;
@@ -1335,15 +1279,46 @@ box-shadow: 0 0 3px  lightgrey;
     background-color: lightgray;
     padding: 8px;
 }
-.icon-copy,.icon-paste,.icon-cut,.download,.open{
+.icon-copy,.icon-paste,.icon-cut,.download,.open,.savedb,.opendb{
     cursor: pointer;
     padding-left: 10px ;
     padding-right: 10px;
 
 }
+.savedb,.opendb{
+    background-color: #107c41;
+    border-radius: 6px;
+    color: white;
+    margin :6px;
+}
+.savedb:hover,.opendb:hover{
+    background-color: #107c41;
+    border-radius: 6px;
+    color: palegreen;
+}
 .formula-editor.selected-cell{
     font-size: 15px;
     justify-content: center;
 }
+@media screen and (max-width: 750px) {
+    .menu-icon-bar{
+      flex-wrap: wrap;
+      height: 14vh;
+        align-items: center;
+        background-color:rgb(241,241,241) ;
+        display: flex;
+    }
+    .sheet-bar{
+        height: calc(100vh - 92vh);
+       display: flex;
+       align-items: center;
+    }
+    .data-container{
+        height: 65vh;
+       display: flex;
+       flex-wrap: wrap;
+       overflow:hidden;
+    }
+  }
 
 </style>

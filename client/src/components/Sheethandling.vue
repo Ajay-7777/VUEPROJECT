@@ -164,7 +164,7 @@ createGraphComponentMatrix() {
 
 </script>
 <style scoped>
-.shee{
+.sheet-folder{
     height: 80%;
     text-decoration: underline;
     font-weight: bold;
